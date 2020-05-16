@@ -80,9 +80,19 @@ func (l *Lexer) Parse() {
 			l.emit(token.Int)
 
 		case l.r == '"':
+			l.step()
+			l.emit(token.DQuote)
+			escape := false
 			l.readWhile(func(r rune) bool {
-				return r != '"'
+				ret := (escape || r != '"') && r != 0
+				escape = !escape && l.r == '\\'
+				return ret
 			})
+			l.emit(token.String)
+			if l.r == '"' {
+				l.step()
+				l.emit(token.DQuote)
+			}
 
 		default:
 			var curr string
