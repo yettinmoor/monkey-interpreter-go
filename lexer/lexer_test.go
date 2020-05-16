@@ -8,6 +8,8 @@ import (
 func TestNextToken(t *testing.T) {
 	input := `let x=   5;
 	let y = 10;
+	y = y - 4;
+	y++;
 	let add = fn(x, y) {
 		return x+y ;
 	};`
@@ -24,6 +26,15 @@ func TestNextToken(t *testing.T) {
 		{token.Ident, "y"},
 		{token.Assign, "="},
 		{token.Int, "10"},
+		{token.Semicolon, ";"},
+		{token.Ident, "y"},
+		{token.Assign, "="},
+		{token.Ident, "y"},
+		{token.Minus, "-"},
+		{token.Int, "4"},
+		{token.Semicolon, ";"},
+		{token.Ident, "y"},
+		{token.Increment, "++"},
 		{token.Semicolon, ";"},
 		{token.Let, "let"},
 		{token.Ident, "add"},

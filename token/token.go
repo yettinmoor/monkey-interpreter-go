@@ -21,21 +21,25 @@ const (
 	RParen    = ")"
 	LBrace    = "{"
 	RBrace    = "}"
+	Increment = "++"
+	Decrement = "--"
 	Function  = "FUNCTION"
 	Let       = "LET"
 	Return    = "RETURN"
 )
 
-var SingleChToks = map[rune]TokenType{
-	'=': Assign,
-	'+': Plus,
-	'-': Minus,
-	',': Comma,
-	';': Semicolon,
-	'(': LParen,
-	')': RParen,
-	'{': LBrace,
-	'}': RBrace,
+var SymToks = map[string]TokenType{
+	"=":  Assign,
+	"+":  Plus,
+	"-":  Minus,
+	",":  Comma,
+	";":  Semicolon,
+	"(":  LParen,
+	")":  RParen,
+	"{":  LBrace,
+	"}":  RBrace,
+	"++": Increment,
+	"--": Decrement,
 }
 
 var Keywords = map[string]TokenType{

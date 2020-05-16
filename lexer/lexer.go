@@ -1,8 +1,9 @@
 package lexer
 
 import (
-	"fmt"
+	"log"
 	"monkey/token"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -50,7 +51,7 @@ func (l *Lexer) consume() string {
 }
 
 func (l *Lexer) emit(t token.TokenType) {
-	fmt.Printf("emitting %q (type %q, pos.s %d to %d)\n", l.read(), t, l.start, l.pos)
+	log.Printf("\tEMITTING %q (type %q, pos.s %d to %d)", l.read(), t, l.start, l.pos)
 	l.ch <- &token.Token{Type: t, Literal: l.consume()}
 }
 
@@ -60,15 +61,13 @@ func (l *Lexer) Parse() {
 
 	for l.r != 0 {
 		l.readWhile(isWhitespace)
-		fmt.Printf("consuming %q\n", l.read())
 		l.consume()
-		fmt.Printf("curr input is %q\n", l.input[l.start:])
-		fmt.Printf("curr char %q (pos %d) is ", l.r, l.start)
+		log.Printf("CURRENT char %q (pos %d)", l.r, l.start)
 
 		switch {
 
 		case isAlpha(l.r):
-			fmt.Printf("alpha\n")
+			log.Printf("\tALPHA")
 			l.readWhile(isAlphaNum)
 			if keywordType, ok := token.Keywords[l.read()]; ok {
 				l.emit(keywordType)
@@ -77,16 +76,28 @@ func (l *Lexer) Parse() {
 			}
 
 		case isNum(l.r):
-			fmt.Printf("num\n")
+			log.Printf("\tNUM")
 			l.readWhile(isNum)
 			l.emit(token.Int)
 
 		default:
-			if singleTokType, isSingleCh := token.SingleChToks[l.r]; isSingleCh {
-				l.step()
-				l.emit(singleTokType)
+			var curr string
+			l.readWhile(func(r rune) bool {
+				next := curr + string(r)
+				log.Printf("\tSYMBOL? %q", next)
+				for tok := range token.SymToks {
+					if strings.HasPrefix(tok, next) {
+						curr = next
+						return true
+					}
+				}
+				// return len(symToks) >= 1
+				return false
+			})
+			if symTok, isSymTok := token.SymToks[curr]; isSymTok {
+				l.emit(symTok)
 			} else {
-				fmt.Printf("illegal\n")
+				log.Printf("illegal")
 				l.emit(token.Illegal)
 			}
 		}
@@ -95,7 +106,6 @@ func (l *Lexer) Parse() {
 
 func (l *Lexer) readWhile(f func(r rune) bool) {
 	for f(l.r) {
-		fmt.Printf("\treading %q at pos %d\n", l.r, l.pos-1)
 		l.step()
 	}
 }
