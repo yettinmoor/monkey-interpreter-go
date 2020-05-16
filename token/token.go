@@ -8,42 +8,73 @@ type Token struct {
 }
 
 const (
-	Illegal   = "ILLEGAL"
-	EOF       = "EOF"
-	Ident     = "IDENT"
-	Int       = "INT"
 	Assign    = "="
-	Plus      = "+"
-	Minus     = "-"
+	Bang      = "!"
 	Comma     = ","
-	Semicolon = ";"
-	LParen    = "("
-	RParen    = ")"
-	LBrace    = "{"
-	RBrace    = "}"
-	Increment = "++"
+	DQuote    = "\""
 	Decrement = "--"
-	Function  = "FUNCTION"
-	Let       = "LET"
-	Return    = "RETURN"
+	EOF       = "EOF"
+	String    = "STRING"
+	Else      = "else"
+	Eq        = "=="
+	False     = "false"
+	Function  = "fn"
+	Ge        = ">="
+	Gt        = ">"
+	Ident     = "IDENT"
+	If        = "if"
+	Illegal   = "ILLEGAL"
+	Increment = "++"
+	Int       = "INT"
+	LBrace    = "{"
+	LParen    = "("
+	Le        = "<="
+	Let       = "let"
+	Lt        = "<"
+	Minus     = "-"
+	Neq       = "!="
+	Plus      = "+"
+	RBrace    = "}"
+	RParen    = ")"
+	Return    = "return"
+	SQuote    = "'"
+	Semicolon = ";"
+	Slash     = "/"
+	Star      = "*"
+	True      = "true"
 )
 
 var SymToks = map[string]TokenType{
-	"=":  Assign,
-	"+":  Plus,
-	"-":  Minus,
-	",":  Comma,
-	";":  Semicolon,
+	"!":  Bang,
+	"!=": Neq,
+	"'":  SQuote,
 	"(":  LParen,
 	")":  RParen,
+	"*":  Star,
+	"+":  Plus,
+	"++": Increment,
+	",":  Comma,
+	"-":  Minus,
+	"--": Decrement,
+	"/":  Slash,
+	";":  Semicolon,
+	"<":  Lt,
+	"<=": Le,
+	"=":  Assign,
+	"==": Eq,
+	">":  Gt,
+	">=": Ge,
+	"\"": DQuote,
 	"{":  LBrace,
 	"}":  RBrace,
-	"++": Increment,
-	"--": Decrement,
 }
 
 var Keywords = map[string]TokenType{
-	"let":    Let,
+	"else":   Else,
+	"false":  False,
 	"fn":     Function,
+	"if":     If,
+	"let":    Let,
 	"return": Return,
+	"true":   True,
 }

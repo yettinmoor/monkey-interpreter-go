@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"log"
 	"monkey/token"
 	"strings"
 	"unicode/utf8"
@@ -51,7 +50,7 @@ func (l *Lexer) consume() string {
 }
 
 func (l *Lexer) emit(t token.TokenType) {
-	log.Printf("\tEMITTING %q (type %q, pos.s %d to %d)", l.read(), t, l.start, l.pos)
+	// log.Printf("\tEMITTING %q (type %q, pos.s %d to %d)", l.read(), t, l.start, l.pos)
 	l.ch <- &token.Token{Type: t, Literal: l.consume()}
 }
 
@@ -62,12 +61,12 @@ func (l *Lexer) Parse() {
 	for l.r != 0 {
 		l.readWhile(isWhitespace)
 		l.consume()
-		log.Printf("CURRENT char %q (pos %d)", l.r, l.start)
+		// log.Printf("CURRENT char %q (pos %d)", l.r, l.start)
 
 		switch {
 
 		case isAlpha(l.r):
-			log.Printf("\tALPHA")
+			// log.Printf("\tALPHA")
 			l.readWhile(isAlphaNum)
 			if keywordType, ok := token.Keywords[l.read()]; ok {
 				l.emit(keywordType)
@@ -76,15 +75,20 @@ func (l *Lexer) Parse() {
 			}
 
 		case isNum(l.r):
-			log.Printf("\tNUM")
+			// log.Printf("\tNUM")
 			l.readWhile(isNum)
 			l.emit(token.Int)
+
+		case l.r == '"':
+			l.readWhile(func(r rune) bool {
+				return r != '"'
+			})
 
 		default:
 			var curr string
 			l.readWhile(func(r rune) bool {
 				next := curr + string(r)
-				log.Printf("\tSYMBOL? %q", next)
+				// log.Printf("\tSYMBOL? %q", next)
 				for tok := range token.SymToks {
 					if strings.HasPrefix(tok, next) {
 						curr = next
@@ -97,7 +101,7 @@ func (l *Lexer) Parse() {
 			if symTok, isSymTok := token.SymToks[curr]; isSymTok {
 				l.emit(symTok)
 			} else {
-				log.Printf("illegal")
+				// log.Printf("illegal")
 				l.emit(token.Illegal)
 			}
 		}
