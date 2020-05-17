@@ -1,21 +1,24 @@
 package lexer
 
 import (
+	// "log"
 	"monkey/token"
 	"strings"
 	"unicode/utf8"
 )
 
 type Lexer struct {
-	input string
-	start int
-	pos   int
-	r     rune
-	ch    chan<- *token.Token
+	input      string
+	start      int
+	pos        int
+	r          rune
+	ch         chan<- *token.Token
+	row        int
+	lastRowPos int
 }
 
 func New(input string, ch chan<- *token.Token) *Lexer {
-	l := &Lexer{input: input, ch: ch}
+	l := &Lexer{input: input, ch: ch, row: 1}
 	l.step()
 	return l
 }
@@ -51,7 +54,8 @@ func (l *Lexer) consume() string {
 
 func (l *Lexer) emit(t token.TokenType) {
 	// log.Printf("\tEMITTING %q (type %q, pos.s %d to %d)", l.read(), t, l.start, l.pos)
-	l.ch <- &token.Token{Type: t, Literal: l.consume()}
+	col := 1 + l.start - l.lastRowPos
+	l.ch <- &token.Token{Type: t, Literal: l.consume(), Row: l.row, Col: col}
 }
 
 func (l *Lexer) Parse() {
@@ -59,7 +63,13 @@ func (l *Lexer) Parse() {
 	defer l.emit(token.EOF)
 
 	for l.r != 0 {
-		l.readWhile(isWhitespace)
+		l.readWhile(func(r rune) bool {
+			if r == '\n' {
+				l.row++
+				l.lastRowPos = l.pos + 1
+			}
+			return r == ' ' || r == '\t' || r == '\n' || r == '\r'
+		})
 		l.consume()
 		// log.Printf("CURRENT char %q (pos %d)", l.r, l.start)
 

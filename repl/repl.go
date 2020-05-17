@@ -23,7 +23,7 @@ func Repl() {
 		prog := p.Parse()
 		if p.Errors != nil {
 			for _, e := range p.Errors {
-				fmt.Printf("%s\n", e)
+				fmt.Println(e.String())
 			}
 		} else {
 			fmt.Printf("%s\n", prog.String())

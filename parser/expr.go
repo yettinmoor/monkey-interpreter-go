@@ -43,7 +43,7 @@ func (p *Parser) parseExpr(precedence int) ast.Expr {
 	}
 	left := prefix()
 
-	for {
+	for p.peek != nil {
 		if peekPrec, isInfix := infixPrecedences[p.peek.Type]; !isInfix || precedence >= peekPrec {
 			break
 		}

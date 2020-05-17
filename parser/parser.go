@@ -8,12 +8,21 @@ import (
 )
 
 type Parser struct {
-	l                 *lexer.Lexer
-	ch                <-chan *token.Token
-	cur, peek, buffer *token.Token
-	Errors            []string
-	prefixParseFns    map[token.TokenType]prefixParseFn
-	infixParseFns     map[token.TokenType]bool
+	l              *lexer.Lexer
+	ch             <-chan *token.Token
+	cur, peek      *token.Token
+	Errors         []ParserError
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]bool
+}
+
+type ParserError struct {
+	row, col int
+	msg      string
+}
+
+func (pe *ParserError) String() string {
+	return fmt.Sprintf("Row %d, col %d: %s", pe.row, pe.col, pe.msg)
 }
 
 func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
@@ -43,24 +52,14 @@ func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 }
 
 func (p *Parser) next() {
-	p.cur = p.peek
-	if p.buffer != nil {
-		p.peek = p.buffer
-		p.buffer = nil
-	} else {
-		p.peek = <-p.ch
+	if p.peek.Type != token.EOF {
+		p.cur, p.peek = p.peek, <-p.ch
 	}
-}
-
-func (p *Parser) pushback() {
-	p.buffer = p.peek
-	p.peek = p.cur
-	p.cur = &token.Token{}
 }
 
 func (p *Parser) Parse() *ast.Program {
 	prog := &ast.Program{}
-	for p.cur.Type != token.EOF {
+	for p.peek.Type != token.EOF {
 		if stmt := p.parseStmt(); stmt != nil {
 			prog.Stmts = append(prog.Stmts, stmt)
 		}
@@ -128,9 +127,11 @@ func (p *Parser) expect(t token.TokenType) bool {
 		return true
 	}
 	p.errorf("Expected token `%s`, got `%s`", t, p.peek.Type)
+	p.next()
 	return false
 }
 
 func (p *Parser) errorf(format string, a ...interface{}) {
-	p.Errors = append(p.Errors, fmt.Sprintf(format, a...))
+	pe := ParserError{row: p.cur.Row, col: p.cur.Col, msg: fmt.Sprintf(format, a...)}
+	p.Errors = append(p.Errors, pe)
 }

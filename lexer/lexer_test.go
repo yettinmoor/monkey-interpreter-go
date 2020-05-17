@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestNextToken(t *testing.T) {
+func TestTokenize(t *testing.T) {
 	input := `let x=   5;
 	let y = 10;
 	y = y - 4;
@@ -70,6 +70,47 @@ func TestNextToken(t *testing.T) {
 		if tok.Literal != tt.expectedLiteral {
 			t.Fatalf("tests[%d]: expected literal %q, got literal %q",
 				i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
+
+func TestError(t *testing.T) {
+	input := `let x = 3;
+	let y = "hello";`
+	tests := []struct {
+		literal string
+		row     int
+		col     int
+	}{
+		{"let", 1, 1},
+		{"x", 1, 5},
+		{"=", 1, 7},
+		{"3", 1, 9},
+		{";", 1, 10},
+		{"let", 2, 1},
+		{"y", 2, 5},
+		{"=", 2, 7},
+		{"\"", 2, 9},
+		{"hello", 2, 10},
+		{"\"", 2, 15},
+		{";", 2, 16},
+	}
+
+	ch := make(chan *token.Token)
+	l := New(input, ch)
+	go l.Parse()
+
+	for i, tt := range tests {
+		t.Logf("Test %d", i)
+		tok := <-ch
+		if tok.Literal != tt.literal {
+			t.Errorf("Expected literal %s, got %s", tt.literal, tok.Literal)
+		}
+		if tok.Row != tt.row {
+			t.Errorf("Expected row # %d, got %d", tt.row, tok.Row)
+		}
+		if tok.Col != tt.col {
+			t.Errorf("Expected col # %d, got %d", tt.col, tok.Col)
 		}
 	}
 }

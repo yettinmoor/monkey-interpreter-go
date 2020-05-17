@@ -18,12 +18,51 @@ func setup(t *testing.T, input string) *ast.Program {
 	}
 	if p.Errors != nil {
 		t.Errorf("parser has %d errors", len(p.Errors))
-		for _, msg := range p.Errors {
-			t.Errorf("\tParser error: %s", msg)
+		for _, err := range p.Errors {
+			t.Errorf(err.String())
 		}
 		t.FailNow()
 	}
 	return program
+}
+
+func TestParserError(t *testing.T) {
+	input := `let x;
+	return 3`
+	ch := make(chan *token.Token)
+	l := lexer.New(input, ch)
+	p := New(l, ch)
+
+	program := p.Parse()
+	if program == nil {
+		t.Fatalf("Parse() returned nil")
+	}
+	if p.Errors == nil {
+		t.Fatalf("ParserError did not catch errors")
+	}
+	tests := []struct {
+		row, col int
+	}{
+		{1, 5},
+		{2, 11},
+		{3, 9},
+	}
+	if len(p.Errors) != len(tests) {
+		t.Errorf("Expected %d errors, caught %d", len(tests), len(p.Errors))
+		for _, err := range p.Errors {
+			t.Log(err.String())
+		}
+		t.FailNow()
+	}
+	for i, err := range p.Errors {
+		t.Log(err.String())
+		if err.row != tests[i].row {
+			t.Errorf("Error #%d should be at row %d, got %d", i+1, tests[i].row, err.row)
+		}
+		if err.col != tests[i].col {
+			t.Errorf("Error #%d should be at col %d, got %d", i+1, tests[i].col, err.col)
+		}
+	}
 }
 
 func TestLetStmts(t *testing.T) {
