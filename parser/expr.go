@@ -38,7 +38,7 @@ type prefixParseFn func() ast.Expr
 func (p *Parser) parseExpr(precedence int) ast.Expr {
 	prefix, ok := p.prefixParseFns[p.cur.Type]
 	if !ok {
-		p.errorf("No prefix expression found for %s", p.cur)
+		p.errorf("No prefix expression found for %s", p.cur.Type)
 		return nil
 	}
 	left := prefix()
