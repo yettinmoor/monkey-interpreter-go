@@ -27,13 +27,10 @@ func (pe *ParserError) String() string {
 
 func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 	go l.Parse()
-	cur := <-ch
-	peek := <-ch
 	p := &Parser{
 		l:    l,
 		ch:   ch,
-		cur:  cur,
-		peek: peek,
+		peek: <-ch,
 		infixParseFns: map[token.TokenType]bool{
 			token.Eq:    true,
 			token.Neq:   true,
@@ -48,6 +45,7 @@ func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 		},
 	}
 	p.prefixParseFns = p.registerPrefixes()
+	p.next()
 	return p
 }
 
@@ -75,7 +73,8 @@ func (p *Parser) parseStmt() ast.Stmt {
 	case token.Return:
 		return p.parseReturnStmt()
 	default:
-		return p.parseExprStmt()
+		expr := p.parseExprStmt()
+		return expr
 	}
 }
 

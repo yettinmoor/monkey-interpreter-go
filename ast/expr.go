@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 	"monkey/token"
 )
 
@@ -28,6 +29,16 @@ type IntLiteralExpr struct {
 func (i *IntLiteralExpr) exprNode() {}
 func (i *IntLiteralExpr) String() string {
 	return i.Token.Literal
+}
+
+type StringExpr struct {
+	Token *token.Token
+	Value string
+}
+
+func (s *StringExpr) exprNode() {}
+func (s *StringExpr) String() string {
+	return fmt.Sprintf("\"%s\"", s.Value)
 }
 
 type BoolExpr struct {

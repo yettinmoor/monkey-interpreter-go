@@ -66,6 +66,16 @@ func (p *Parser) parseIntLiteralExpr() ast.Expr {
 	return &ast.IntLiteralExpr{Token: p.cur, Value: value}
 }
 
+func (p *Parser) parseStringExpr() ast.Expr {
+	expr := &ast.StringExpr{Token: p.cur}
+	p.next()
+	expr.Value = p.cur.Literal
+	if !p.expect(token.DQuote) {
+		return nil
+	}
+	return expr
+}
+
 func (p *Parser) parseBoolExpr() ast.Expr {
 	return &ast.BoolExpr{Token: p.cur, Value: p.cur.Literal == "true"}
 }
@@ -102,10 +112,11 @@ func (p *Parser) registerPrefixes() map[token.TokenType]prefixParseFn {
 	return map[token.TokenType]prefixParseFn{
 		token.Ident:  p.parseIdentExpr,
 		token.Int:    p.parseIntLiteralExpr,
+		token.DQuote: p.parseStringExpr,
 		token.Bang:   p.parsePrefixExpr,
 		token.Minus:  p.parsePrefixExpr,
-		token.LParen: p.parseGroupedExpr,
 		token.True:   p.parseBoolExpr,
 		token.False:  p.parseBoolExpr,
+		token.LParen: p.parseGroupedExpr,
 	}
 }
