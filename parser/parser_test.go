@@ -44,8 +44,7 @@ func TestParserError(t *testing.T) {
 		row, col int
 	}{
 		{1, 5},
-		{2, 11},
-		{3, 9},
+		{2, 8},
 	}
 	if len(p.Errors) != len(tests) {
 		t.Errorf("Expected %d errors, caught %d", len(tests), len(p.Errors))
@@ -153,6 +152,29 @@ func TestIntLiteralExpr(t *testing.T) {
 		t.Fatalf("not ident expr, got %T", stmt.Expr)
 	} else if intExpr.Value != 5 {
 		t.Errorf("token value not 5, got %s", intExpr.Token.Literal)
+	}
+}
+
+func TestStringExpr(t *testing.T) {
+	input := "let x = \"escaped \n string! \\\" quotes and stuff \\\"\";"
+
+	program := setup(t, input)
+
+	tests := []string{
+		"escaped \n string! \\\" quotes and stuff \\\"",
+	}
+
+	if len(program.Stmts) != len(tests) {
+		t.Fatalf("Expected %d expr, got %d", len(tests), len(program.Stmts))
+	}
+	for i, tt := range tests {
+		if letStmt, ok := program.Stmts[i].(*ast.LetStmt); !ok {
+			t.Errorf("Stmt %d: expected *ast.ExprStmt, got %T", i, program.Stmts[i])
+		} else if strExpr, ok := letStmt.Value.(*ast.StringExpr); !ok {
+			t.Errorf("Expr stmt %d is not a string expr", i)
+		} else if strExpr.Value != tt {
+			t.Errorf("Expected string %q, got %q", tt, strExpr.Value)
+		}
 	}
 }
 
