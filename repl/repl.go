@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"monkey/lexer"
+	"monkey/parser"
 	"monkey/token"
 	"os"
 )
@@ -17,9 +18,15 @@ func Repl() {
 			return
 		}
 		ch := make(chan *token.Token)
-		go lexer.New(scanner.Text(), ch).Parse()
-		for tok := range ch {
-			fmt.Printf("%+v\n", tok)
+		l := lexer.New(scanner.Text(), ch)
+		p := parser.New(l, ch)
+		prog := p.Parse()
+		if p.Errors != nil {
+			for _, e := range p.Errors {
+				fmt.Printf("%s\n", e)
+			}
+		} else {
+			fmt.Printf("%s\n", prog.String())
 		}
 	}
 }

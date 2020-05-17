@@ -8,13 +8,13 @@ type Token struct {
 }
 
 const (
+	And       = "&&"
 	Assign    = "="
 	Bang      = "!"
 	Comma     = ","
 	DQuote    = "\""
 	Decrement = "--"
 	EOF       = "EOF"
-	String    = "STRING"
 	Else      = "else"
 	Eq        = "=="
 	False     = "false"
@@ -33,6 +33,7 @@ const (
 	Lt        = "<"
 	Minus     = "-"
 	Neq       = "!="
+	Or        = "||"
 	Plus      = "+"
 	RBrace    = "}"
 	RParen    = ")"
@@ -41,12 +42,14 @@ const (
 	Semicolon = ";"
 	Slash     = "/"
 	Star      = "*"
+	String    = "STRING"
 	True      = "true"
 )
 
 var SymToks = map[string]TokenType{
 	"!":  Bang,
 	"!=": Neq,
+	"&&": And,
 	"'":  SQuote,
 	"(":  LParen,
 	")":  RParen,
@@ -66,6 +69,7 @@ var SymToks = map[string]TokenType{
 	">=": Ge,
 	"\"": DQuote,
 	"{":  LBrace,
+	"||": Or,
 	"}":  RBrace,
 }
 
