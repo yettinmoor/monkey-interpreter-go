@@ -71,7 +71,7 @@ func (p *Parser) expect(t token.TokenType, caller string) bool {
 		p.next()
 		return true
 	}
-	p.errorf("While parsing %s: Expected token `%s`, got `%s`", caller, t, p.peek.Type)
+	p.errorf("While parsing %s: Expected token `%s`, got `%s`", caller, t.String(), p.peek.Type.String())
 	p.next()
 	return false
 }

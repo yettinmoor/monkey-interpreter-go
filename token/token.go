@@ -1,6 +1,10 @@
 package token
 
-type TokenType string
+type TokenType uint8
+
+func (t *TokenType) String() string {
+	return allTokens[*t]
+}
 
 type Token struct {
 	Type     TokenType
@@ -8,46 +12,59 @@ type Token struct {
 	Row, Col int
 }
 
+type tokenGroup map[string]TokenType
+
 const (
-	And       = "&&"
-	Assign    = "="
-	Bang      = "!"
-	Comma     = ","
-	DQuote    = "\""
-	Decrement = "--"
-	EOF       = "EOF"
-	Else      = "else"
-	Eq        = "=="
-	False     = "false"
-	Function  = "fn"
-	Ge        = ">="
-	Gt        = ">"
-	Ident     = "IDENT"
-	If        = "if"
-	Illegal   = "ILLEGAL"
-	Increment = "++"
-	Int       = "INT"
-	LBrace    = "{"
-	LParen    = "("
-	Le        = "<="
-	Let       = "let"
-	Lt        = "<"
-	Minus     = "-"
-	Neq       = "!="
-	Or        = "||"
-	Plus      = "+"
-	RBrace    = "}"
-	RParen    = ")"
-	Return    = "return"
-	SQuote    = "'"
-	Semicolon = ";"
-	Slash     = "/"
-	Star      = "*"
-	String    = "STRING"
-	True      = "true"
+	_ TokenType = iota
+	And
+	Assign
+	Bang
+	Comma
+	DQuote
+	Decrement
+	EOF
+	Else
+	Eq
+	False
+	Function
+	Ge
+	Gt
+	Ident
+	If
+	Illegal
+	Increment
+	Int
+	LBrace
+	LParen
+	Le
+	Let
+	Lt
+	Minus
+	Neq
+	Or
+	Plus
+	RBrace
+	RParen
+	Return
+	SQuote
+	Semicolon
+	Slash
+	Star
+	String
+	True
 )
 
-var SymToks = map[string]TokenType{
+var allTokens = func() map[TokenType]string {
+	allTokens := make(map[TokenType]string, len(SymToks)+len(Keywords)+len(special))
+	for _, tokGroup := range []tokenGroup{SymToks, Keywords, special} {
+		for name, tokID := range tokGroup {
+			allTokens[tokID] = name
+		}
+	}
+	return allTokens
+}()
+
+var SymToks = tokenGroup{
 	"!":  Bang,
 	"!=": Neq,
 	"&&": And,
@@ -74,7 +91,7 @@ var SymToks = map[string]TokenType{
 	"}":  RBrace,
 }
 
-var Keywords = map[string]TokenType{
+var Keywords = tokenGroup{
 	"else":   Else,
 	"false":  False,
 	"fn":     Function,
@@ -82,4 +99,10 @@ var Keywords = map[string]TokenType{
 	"let":    Let,
 	"return": Return,
 	"true":   True,
+}
+
+var special = tokenGroup{
+	"EOF":     EOF,
+	"INT":     Int,
+	"ILLEGAL": Illegal,
 }

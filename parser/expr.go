@@ -42,7 +42,7 @@ func (p *Parser) parseExpr(precedence int) ast.Expr {
 		if p.cur.Type == token.Semicolon {
 			return nil
 		}
-		p.errorf("No prefix expression found for %s", p.cur.Type)
+		p.errorf("No prefix expression found for %s", p.cur.Type.String())
 		return nil
 	}
 	left := prefix()
