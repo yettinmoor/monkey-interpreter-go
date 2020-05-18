@@ -3,6 +3,7 @@ package parser
 import (
 	"monkey/ast"
 	"monkey/token"
+	"monkey/util"
 	"strconv"
 )
 
@@ -38,12 +39,15 @@ type prefixParseFn func() ast.Expr
 func (p *Parser) parseExpr(precedence int) ast.Expr {
 	prefix, ok := p.prefixParseFns[p.cur.Type]
 	if !ok {
+		if p.cur.Type == token.Semicolon {
+			return nil
+		}
 		p.errorf("No prefix expression found for %s", p.cur.Type)
 		return nil
 	}
 	left := prefix()
 
-	for p.peek != nil {
+	for p.cur.Type != token.EOF {
 		if peekPrec, isInfix := infixPrecedences[p.peek.Type]; !isInfix || precedence >= peekPrec {
 			break
 		}
@@ -54,6 +58,10 @@ func (p *Parser) parseExpr(precedence int) ast.Expr {
 }
 
 func (p *Parser) parseIdentExpr() ast.Expr {
+	if !util.StringIsAlphaNum(p.cur.Literal) {
+		p.errorf("Expected alphanumeric identifier, got %q", p.cur.Literal)
+		return nil
+	}
 	return &ast.IdentExpr{Token: p.cur, Value: p.cur.Literal}
 }
 
@@ -108,15 +116,57 @@ func (p *Parser) parseGroupedExpr() ast.Expr {
 	return expr
 }
 
+func (p *Parser) parseFuncExpr() ast.Expr {
+	funcExpr := &ast.FuncExpr{
+		Token: p.cur,
+		Args:  make([]*ast.IdentExpr, 0),
+		Stmts: make([]*ast.Stmt, 0),
+	}
+	if !p.expect(token.LParen, "function expr") {
+		return nil
+	}
+	for p.next(); p.cur.Type != token.RParen; p.next() {
+		if ident := p.parseIdentExpr(); ident != nil {
+
+		}
+		ident, ok := p.parseIdentExpr().(*ast.IdentExpr)
+		if !ok {
+			p.errorf("Failed to parse func arguments")
+			return nil
+		}
+		funcExpr.Args = append(funcExpr.Args, ident)
+		if p.peek.Type == token.RParen {
+			p.next()
+			break
+		}
+		if !p.expect(token.Comma, "function expr") {
+			return nil
+		}
+	}
+	if !p.expect(token.LBrace, "function expr") {
+		return nil
+	}
+	for p.next(); p.cur.Type != token.RBrace; p.next() {
+		stmt := p.parseStmt()
+		if stmt == nil {
+			return nil
+		}
+		funcExpr.Stmts = append(funcExpr.Stmts, &stmt)
+	}
+	// p.next()
+	return funcExpr
+}
+
 func (p *Parser) registerPrefixes() map[token.TokenType]prefixParseFn {
 	return map[token.TokenType]prefixParseFn{
-		token.Ident:  p.parseIdentExpr,
-		token.Int:    p.parseIntLiteralExpr,
-		token.DQuote: p.parseStringExpr,
-		token.Bang:   p.parsePrefixExpr,
-		token.Minus:  p.parsePrefixExpr,
-		token.True:   p.parseBoolExpr,
-		token.False:  p.parseBoolExpr,
-		token.LParen: p.parseGroupedExpr,
+		token.Ident:    p.parseIdentExpr,
+		token.Int:      p.parseIntLiteralExpr,
+		token.DQuote:   p.parseStringExpr,
+		token.Bang:     p.parsePrefixExpr,
+		token.Minus:    p.parsePrefixExpr,
+		token.True:     p.parseBoolExpr,
+		token.False:    p.parseBoolExpr,
+		token.LParen:   p.parseGroupedExpr,
+		token.Function: p.parseFuncExpr,
 	}
 }

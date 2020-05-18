@@ -93,8 +93,7 @@ func TestLetStmts(t *testing.T) {
 }
 
 func TestReturnStmts(t *testing.T) {
-	input := `
-	return 10;
+	input := `return 10;
 	return 5;
 	return 5+6;`
 
@@ -215,11 +214,11 @@ func TestInfixExpr(t *testing.T) {
 		op     string
 		rvalue int64
 	}{
-		{"5 + 5", 5, "+", 5},
-		{"5 * 5", 5, "*", 5},
-		{"5 / 5", 5, "/", 5},
-		{"5 == 5", 5, "==", 5},
-		{"5 <= 5", 5, "<=", 5},
+		{"5 + 5;", 5, "+", 5},
+		{"5 * 5;", 5, "*", 5},
+		{"5 / 5;", 5, "/", 5},
+		{"5 == 5;", 5, "==", 5},
+		{"5 <= 5;", 5, "<=", 5},
 	}
 
 	for i, tt := range tests {
@@ -238,6 +237,49 @@ func TestInfixExpr(t *testing.T) {
 			}
 			testIntLit(t, expr.Right, tt.lvalue)
 			testIntLit(t, expr.Right, tt.rvalue)
+		}
+	}
+}
+func TestFuncExpr(t *testing.T) {
+	input := `let void = fn() {  };
+	let square = fn(x) { x*x; };
+	let avg = fn(a, b) { let a = 3; let b = 5; return (a + b) / 2; };`
+
+	program := setup(t, input)
+
+	tests := []struct {
+		args   []string
+		nStmts int
+	}{
+		{[]string{}, 0},
+		{[]string{"x"}, 1},
+		{[]string{"a", "b"}, 3},
+	}
+
+	for i, tt := range tests {
+		if len(program.Stmts) != len(tests) {
+			t.Fatalf("Expected %d expr, got %d\n", len(tests), len(program.Stmts))
+		}
+		if stmt, ok := program.Stmts[i].(*ast.LetStmt); !ok {
+			t.Fatalf("Not exprstmt, got %T", program.Stmts[i])
+		} else if funcExpr, ok := stmt.Value.(*ast.FuncExpr); !ok {
+			t.Fatalf("Not func expr, got %T", stmt.Value)
+		} else {
+			if funcExpr.Token.Literal != "fn" {
+				t.Errorf("Expression toklit not `fn`, got %q", funcExpr.Token.Literal)
+			}
+			if len(funcExpr.Args) != len(tt.args) {
+				t.Errorf("Expected %d args, got %d", len(tt.args), len(funcExpr.Args))
+			} else {
+				for i, arg := range funcExpr.Args {
+					if tt.args[i] != arg.String() {
+						t.Errorf("Arg %d: expected %q, got %q", i, tt.args[i], arg.String())
+					}
+				}
+			}
+			if len(funcExpr.Stmts) != tt.nStmts {
+				t.Errorf("Expected %d stmts, got %d", tt.nStmts, len(funcExpr.Args))
+			}
 		}
 	}
 }

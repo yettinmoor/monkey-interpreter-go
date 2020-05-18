@@ -3,6 +3,7 @@ package lexer
 import (
 	// "log"
 	"monkey/token"
+	"monkey/util"
 	"strings"
 	"unicode/utf8"
 )
@@ -75,18 +76,18 @@ func (l *Lexer) Parse() {
 
 		switch {
 
-		case isAlpha(l.r):
+		case util.IsAlpha(l.r):
 			// log.Printf("\tALPHA")
-			l.readWhile(isAlphaNum)
+			l.readWhile(util.IsAlphaNum)
 			if keywordType, ok := token.Keywords[l.read()]; ok {
 				l.emit(keywordType)
 			} else {
 				l.emit(token.Ident)
 			}
 
-		case isNum(l.r):
+		case util.IsNum(l.r):
 			// log.Printf("\tNUM")
-			l.readWhile(isNum)
+			l.readWhile(util.IsNum)
 			l.emit(token.Int)
 
 		case l.r == '"':
@@ -132,20 +133,4 @@ func (l *Lexer) readWhile(f func(r rune) bool) {
 	for f(l.r) {
 		l.step()
 	}
-}
-
-func isAlpha(r rune) bool {
-	return 'a' <= r && r <= 'z' || 'A' <= r && r <= 'Z' || r == '_'
-}
-
-func isNum(r rune) bool {
-	return '0' <= r && r <= '9'
-}
-
-func isAlphaNum(r rune) bool {
-	return isAlpha(r) || isNum(r)
-}
-
-func isWhitespace(r rune) bool {
-	return r == ' ' || r == '\t' || r == '\n' || r == '\r'
 }

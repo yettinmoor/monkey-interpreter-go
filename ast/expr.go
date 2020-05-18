@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"monkey/token"
+	"strings"
 )
 
 type Expr interface {
@@ -82,5 +83,29 @@ func (ie *InfixExpr) String() string {
 	out.WriteString(ie.Operator)
 	out.WriteString(ie.Right.String())
 	out.WriteString(")")
+	return out.String()
+}
+
+type FuncExpr struct {
+	Token *token.Token
+	Args  []*IdentExpr
+	Stmts []*Stmt
+}
+
+func (fe *FuncExpr) exprNode() {}
+func (fe *FuncExpr) String() string {
+	var out bytes.Buffer
+	args := make([]string, len(fe.Args))
+	for i, arg := range fe.Args {
+		args[i] = arg.String()
+	}
+	out.WriteString("fn(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(") {")
+	stmts := make([]string, len(fe.Args))
+	for i, stmt := range fe.Stmts {
+		stmts[i] = (*stmt).String() // no idea why I have to dereference lmao
+	}
+	out.WriteString("}")
 	return out.String()
 }

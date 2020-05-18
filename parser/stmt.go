@@ -40,7 +40,11 @@ func (p *Parser) parseLetStmt() *ast.LetStmt {
 func (p *Parser) parseReturnStmt() *ast.ReturnStmt {
 	stmt := &ast.ReturnStmt{Token: p.cur}
 
-	p.next()
+	if p.next(); p.cur.Type == token.Semicolon {
+		p.next()
+		return stmt
+	}
+
 	stmt.Value = p.parseExpr(precLowest)
 	if !p.expect(token.Semicolon, "return stmt") {
 		return nil

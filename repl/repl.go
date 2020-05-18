@@ -27,6 +27,7 @@ func Repl() {
 			}
 		} else {
 			fmt.Printf("%s\n", prog.String())
+			// fmt.Printf("%#v\n", prog)
 		}
 	}
 }
