@@ -66,12 +66,12 @@ func (p *Parser) Parse() *ast.Program {
 	return prog
 }
 
-func (p *Parser) expect(t token.TokenType) bool {
+func (p *Parser) expect(t token.TokenType, caller string) bool {
 	if p.peek.Type == t {
 		p.next()
 		return true
 	}
-	p.errorf("Expected token `%s`, got `%s`", t, p.peek.Type)
+	p.errorf("While parsing %s: Expected token `%s`, got `%s`", caller, t, p.peek.Type)
 	p.next()
 	return false
 }

@@ -70,7 +70,7 @@ func (p *Parser) parseStringExpr() ast.Expr {
 	expr := &ast.StringExpr{Token: p.cur}
 	p.next()
 	expr.Value = p.cur.Literal
-	if !p.expect(token.DQuote) {
+	if !p.expect(token.DQuote, "string expr") {
 		return nil
 	}
 	return expr
@@ -102,7 +102,7 @@ func (p *Parser) parseInfixExpr(left ast.Expr) ast.Expr {
 func (p *Parser) parseGroupedExpr() ast.Expr {
 	p.next()
 	expr := p.parseExpr(precLowest)
-	if !p.expect(token.RParen) {
+	if !p.expect(token.RParen, "grouped expr") {
 		return nil
 	}
 	return expr
