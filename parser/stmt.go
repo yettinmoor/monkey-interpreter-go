@@ -41,7 +41,6 @@ func (p *Parser) parseReturnStmt() *ast.ReturnStmt {
 	stmt := &ast.ReturnStmt{Token: p.cur}
 
 	if p.next(); p.cur.Type == token.Semicolon {
-		p.next()
 		return stmt
 	}
 

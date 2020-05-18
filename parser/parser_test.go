@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"monkey/ast"
 	"monkey/lexer"
 	"monkey/token"
@@ -66,8 +67,8 @@ func TestParserError(t *testing.T) {
 
 func TestLetStmts(t *testing.T) {
 	input := `let x = 5;
-	let y = 10;
-	let foo = 5;`
+	let y = 10 + 20;
+	let foo = 5 * 1;`
 
 	program := setup(t, input)
 
@@ -93,9 +94,9 @@ func TestLetStmts(t *testing.T) {
 }
 
 func TestReturnStmts(t *testing.T) {
-	input := `return 10;
+	input := `return;
 	return 5;
-	return 5+6;`
+	return 3*(5+6);`
 
 	program := setup(t, input)
 
@@ -106,34 +107,58 @@ func TestReturnStmts(t *testing.T) {
 	tests := []struct {
 		value string
 	}{
-		{"10"},
+		{""},
 		{"5"},
-		{"(5+6)"},
+		{"(3*(5+6))"},
 	}
 
 	for i, tt := range tests {
 		if retStmt, ok := program.Stmts[i].(*ast.ReturnStmt); !ok {
 			t.Fatalf("Expected return stmt, got %T", program.Stmts[i])
-		} else if retStmt.Value.String() != tt.value {
+		} else if tt.value != "" && retStmt.Value.String() != tt.value {
 			t.Fatalf("Expected returned value %s, got %s", tt.value, retStmt.Value.String())
 		}
 	}
 }
 
 func TestIdentExpr(t *testing.T) {
-	input := `foobar;`
-
-	program := setup(t, input)
-
-	if len(program.Stmts) != 1 {
-		t.Fatalf("Expected 1 expr, got %d", len(program.Stmts))
+	tests := []struct {
+		input       string
+		shouldParse bool
+	}{
+		{`foobar`, true},
+		{`abc123`, true},
+		// {`日本語`, true},
+		{`123abc`, false},
+		{`x + y`, false},
+		{`bad variable name`, false},
 	}
-	if stmt, ok := program.Stmts[0].(*ast.ExprStmt); !ok {
-		t.Fatalf("Not exprstmt, got %T", program.Stmts[0])
-	} else if ident, ok := stmt.Expr.(*ast.IdentExpr); !ok {
-		t.Fatalf("not ident expr, got %T", stmt.Expr)
-	} else if ident.Token.Literal != "foobar" {
-		t.Errorf("Token literal not foobar, got %s", ident.Token.Literal)
+
+	for _, tt := range tests {
+		ch := make(chan *token.Token)
+		l := lexer.New(fmt.Sprintf("let %s = 0;", tt.input), ch)
+		p := New(l, ch)
+		program := p.Parse()
+
+		if program == nil {
+			t.Fatalf("Parse() returned nil")
+		}
+		if !tt.shouldParse && p.Errors == nil {
+			t.Fatalf("Identifier incorrectly allowed: %q", tt.input)
+		}
+		if tt.shouldParse && p.Errors != nil {
+			for _, err := range p.Errors {
+				t.Errorf(err.String())
+			}
+			t.FailNow()
+		}
+		if tt.shouldParse {
+			if letStmt, ok := program.Stmts[0].(*ast.LetStmt); !ok {
+				t.Fatalf("Failed to parse let stmt, got %T", program.Stmts[0])
+			} else if letStmt.Name.Value != tt.input {
+				t.Errorf("Token literal not %s, got %s", tt.input, letStmt.Name.Value)
+			}
+		}
 	}
 }
 
