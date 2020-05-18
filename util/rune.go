@@ -1,6 +1,31 @@
 package util
 
-import "unicode/utf8"
+import (
+	"unicode"
+	"unicode/utf8"
+)
+
+func IsValidIdentifierHead(r rune) bool {
+	return IsAlpha(r) || unicode.IsLetter(r)
+}
+
+func IsValidIdentifierRune(r rune) bool {
+	return IsNum(r) || IsValidIdentifierHead(r)
+}
+
+func IsValidIdentifier(s string) bool {
+	first, w := utf8.DecodeRuneInString(s)
+	if !IsValidIdentifierHead(first) {
+		return false
+	}
+	for _, r := range s[w:] {
+		println(r)
+		if !IsValidIdentifierRune(r) {
+			return false
+		}
+	}
+	return true
+}
 
 func IsAlpha(r rune) bool {
 	return 'a' <= r && r <= 'z' || 'A' <= r && r <= 'Z' || r == '_'
@@ -14,19 +39,6 @@ func IsAlphaNum(r rune) bool {
 	return IsAlpha(r) || IsNum(r)
 }
 
-func StringIsAlphaNum(s string) bool {
-	first, w := utf8.DecodeRuneInString(s)
-	if !IsAlpha(first) {
-		return false
-	}
-	for _, r := range s[w:] {
-		if !(IsAlpha(r) || IsNum(r)) {
-			return false
-		}
-	}
-	return true
-}
-
 func IsWhitespace(r rune) bool {
-	return r == ' ' || r == '\t' || r == '\n' || r == '\r'
+	return r == ' ' || r == '\t' || r == '\n' || r == '\r' || unicode.IsSpace(r)
 }

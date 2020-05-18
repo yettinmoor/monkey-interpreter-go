@@ -10,8 +10,8 @@ func TestTokenize(t *testing.T) {
 	let y = 10;
 	y = y - 4;
 	y++;
-	let add = fn(x, y) {
-		return x+y ;
+	let add = fn(x, 愛) {
+		return x+愛;
 	};`
 	tests := []struct {
 		expectedType    token.TokenType
@@ -43,13 +43,13 @@ func TestTokenize(t *testing.T) {
 		{token.LParen, "("},
 		{token.Ident, "x"},
 		{token.Comma, ","},
-		{token.Ident, "y"},
+		{token.Ident, "愛"},
 		{token.RParen, ")"},
 		{token.LBrace, "{"},
 		{token.Return, "return"},
 		{token.Ident, "x"},
 		{token.Plus, "+"},
-		{token.Ident, "y"},
+		{token.Ident, "愛"},
 		{token.Semicolon, ";"},
 		{token.RBrace, "}"},
 		{token.Semicolon, ";"},

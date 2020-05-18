@@ -58,7 +58,7 @@ func (p *Parser) parseExpr(precedence int) ast.Expr {
 }
 
 func (p *Parser) parseIdentExpr() ast.Expr {
-	if !util.StringIsAlphaNum(p.cur.Literal) {
+	if !util.IsValidIdentifier(p.cur.Literal) {
 		p.errorf("Expected alphanumeric identifier, got %q", p.cur.Literal)
 		return nil
 	}
