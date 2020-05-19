@@ -2,15 +2,13 @@ package lexer
 
 import (
 	"monkey/token"
-	"monkey/util"
 	"strings"
 	"unicode/utf8"
 )
 
 type Lexer struct {
 	input      string
-	start      int
-	pos        int
+	start, pos int
 	r          rune
 	ch         chan<- *token.Token
 	row        int
@@ -18,7 +16,11 @@ type Lexer struct {
 }
 
 func New(input string, ch chan<- *token.Token) *Lexer {
-	l := &Lexer{input: input, ch: ch, row: 1}
+	l := &Lexer{
+		input: input,
+		ch:    ch,
+		row:   1,
+	}
 	l.step()
 	return l
 }
@@ -59,9 +61,13 @@ func (l *Lexer) consume() string {
 }
 
 func (l *Lexer) emit(t token.TokenType) {
-	// log.Printf("\tEMITTING %q (type %q, pos.s %d to %d)", l.read(), t, l.start, l.pos)
 	col := 1 + l.start - l.lastRowPos
-	l.ch <- &token.Token{Type: t, Literal: l.consume(), Row: l.row, Col: col}
+	l.ch <- &token.Token{
+		Type:    t,
+		Literal: l.consume(),
+		Row:     l.row,
+		Col:     col,
+	}
 }
 
 func (l *Lexer) Parse() {
@@ -74,23 +80,21 @@ func (l *Lexer) Parse() {
 				l.row++
 				l.lastRowPos = l.pos + 1
 			}
-			return util.IsWhitespace(r)
+			return IsWhitespace(r)
 		})
 		l.consume()
-		// log.Printf("CURRENT char %q (pos %d)", l.r, l.start)
 
 		switch {
-
-		case util.IsValidIdentifierHead(l.r):
-			l.readWhile(util.IsValidIdentifierRune)
+		case IsValidIdentifierHead(l.r):
+			l.readWhile(IsValidIdentifierRune)
 			if keywordType, ok := token.Keywords[l.read()]; ok {
 				l.emit(keywordType)
 			} else {
 				l.emit(token.Ident)
 			}
 
-		case util.IsNum(l.r):
-			l.readWhile(util.IsNum)
+		case IsNum(l.r):
+			l.readWhile(IsNum)
 			l.emit(token.Int)
 
 		case l.r == '"':

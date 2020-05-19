@@ -1,4 +1,4 @@
-package util
+package lexer
 
 import (
 	"unicode"
