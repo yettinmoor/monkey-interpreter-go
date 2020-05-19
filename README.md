@@ -19,6 +19,5 @@ Some of my additions (haven't finished the book, maybe they're covered later):
 - Everything
 
 ### Other
-- General refactoring
 - Ternary if-else
 - Postfix operators (++, --, maybe ! for factorial just cause)
