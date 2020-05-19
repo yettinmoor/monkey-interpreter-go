@@ -89,7 +89,7 @@ func (ie *InfixExpr) String() string {
 type FuncExpr struct {
 	Token *token.Token
 	Args  []*IdentExpr
-	Stmts []*Stmt
+	*BlockStmt
 }
 
 func (fe *FuncExpr) exprNode() {}
@@ -101,11 +101,7 @@ func (fe *FuncExpr) String() string {
 	}
 	out.WriteString("fn(")
 	out.WriteString(strings.Join(args, ", "))
-	out.WriteString(") {")
-	stmts := make([]string, len(fe.Args))
-	for i, stmt := range fe.Stmts {
-		stmts[i] = (*stmt).String() // no idea why I have to dereference lmao
-	}
-	out.WriteString("}")
+	out.WriteString(") ")
+	out.WriteString(fe.BlockStmt.String())
 	return out.String()
 }

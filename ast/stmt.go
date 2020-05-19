@@ -3,6 +3,7 @@ package ast
 import (
 	"bytes"
 	"monkey/token"
+	"strings"
 )
 
 type Stmt interface {
@@ -56,4 +57,22 @@ func (es *ExprStmt) String() string {
 		return es.Expr.String()
 	}
 	return ""
+}
+
+type BlockStmt struct {
+	Token *token.Token
+	Stmts []*Stmt
+}
+
+func (bs *BlockStmt) stmtNode() {}
+func (bs *BlockStmt) String() string {
+	var out bytes.Buffer
+	out.WriteString("{")
+	stmts := make([]string, len(bs.Stmts))
+	for i, stmt := range bs.Stmts {
+		stmts[i] = (*stmt).String()
+	}
+	out.WriteString(strings.Join(stmts, " "))
+	out.WriteString("}")
+	return out.String()
 }

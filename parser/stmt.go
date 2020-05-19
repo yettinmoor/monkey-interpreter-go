@@ -11,9 +11,10 @@ func (p *Parser) parseStmt() ast.Stmt {
 		return p.parseLetStmt()
 	case token.Return:
 		return p.parseReturnStmt()
+	case token.LBrace:
+		return p.parseBlockStmt()
 	default:
-		expr := p.parseExprStmt()
-		return expr
+		return p.parseExprStmt()
 	}
 }
 
@@ -60,4 +61,16 @@ func (p *Parser) parseExprStmt() *ast.ExprStmt {
 		return nil
 	}
 	return stmt
+}
+
+func (p *Parser) parseBlockStmt() *ast.BlockStmt {
+	block := &ast.BlockStmt{Token: p.cur, Stmts: make([]*ast.Stmt, 0)}
+	for p.next(); p.cur.Type != token.RBrace; p.next() {
+		stmt := p.parseStmt()
+		if stmt == nil {
+			return nil
+		}
+		block.Stmts = append(block.Stmts, &stmt)
+	}
+	return block
 }

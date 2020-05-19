@@ -128,7 +128,9 @@ func TestIdentExpr(t *testing.T) {
 	}{
 		{`foobar`, true},
 		{`abc123`, true},
-		// {`日本語`, true},
+		{`日本語`, true},
+		{`UñïĸøDə`, true},
+		{`abc-123`, false},
 		{`123abc`, false},
 		{`x + y`, false},
 		{`bad variable name`, false},
@@ -265,6 +267,7 @@ func TestInfixExpr(t *testing.T) {
 		}
 	}
 }
+
 func TestFuncExpr(t *testing.T) {
 	input := `let void = fn() {  };
 	let square = fn(x) { x*x; };
@@ -309,6 +312,38 @@ func TestFuncExpr(t *testing.T) {
 	}
 }
 
+func TestBlockStmt(t *testing.T) {
+	input := `
+	{
+		let x = 3;
+		let y = 4;
+		let z = 5;
+	}
+	{
+		let sq = fn(x) { return x*x; };
+		let z = 5;
+	}
+	{
+		let a = 3+3;
+	}
+	{}`
+
+	program := setup(t, input)
+
+	tests := []int{3, 2, 1, 0}
+
+	if len(program.Stmts) != len(tests) {
+		t.Fatalf("Expected %d expr, got %d\n", len(tests), len(program.Stmts))
+	}
+
+	for i, tt := range tests {
+		if stmt, ok := program.Stmts[i].(*ast.BlockStmt); !ok {
+			t.Fatalf("Not block stmt, got %T", program.Stmts[i])
+		} else if len(stmt.Stmts) != tt {
+			t.Errorf("Block has %d stmts, expected %d", len(stmt.Stmts), tt)
+		}
+	}
+}
 func testIntLit(t *testing.T, expr ast.Expr, value int64) {
 	if intExpr, ok := expr.(*ast.IntLiteralExpr); !ok {
 		t.Fatalf("Not int expr, got %T", expr)

@@ -120,7 +120,6 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 	funcExpr := &ast.FuncExpr{
 		Token: p.cur,
 		Args:  make([]*ast.IdentExpr, 0),
-		Stmts: make([]*ast.Stmt, 0),
 	}
 	if !p.expect(token.LParen, "function expr") {
 		return nil
@@ -146,13 +145,7 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 	if !p.expect(token.LBrace, "function expr") {
 		return nil
 	}
-	for p.next(); p.cur.Type != token.RBrace; p.next() {
-		stmt := p.parseStmt()
-		if stmt == nil {
-			return nil
-		}
-		funcExpr.Stmts = append(funcExpr.Stmts, &stmt)
-	}
+	funcExpr.BlockStmt = p.parseBlockStmt()
 	// p.next()
 	return funcExpr
 }
