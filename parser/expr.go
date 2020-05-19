@@ -3,7 +3,6 @@ package parser
 import (
 	"monkey/ast"
 	"monkey/token"
-	"monkey/util"
 	"strconv"
 )
 
@@ -58,10 +57,6 @@ func (p *Parser) parseExpr(precedence int) ast.Expr {
 }
 
 func (p *Parser) parseIdentExpr() ast.Expr {
-	if !util.IsValidIdentifier(p.cur.Literal) {
-		p.errorf("Expected alphanumeric identifier, got %q", p.cur.Literal)
-		return nil
-	}
 	return &ast.IdentExpr{Token: p.cur, Value: p.cur.Literal}
 }
 
@@ -92,6 +87,15 @@ func (p *Parser) parsePrefixExpr() ast.Expr {
 	expr := &ast.PrefixExpr{Token: p.cur, Operator: p.cur.Literal}
 	p.next()
 	expr.Right = p.parseExpr(precPrefix)
+	return expr
+}
+
+func (p *Parser) parseIncDecExpr() ast.Expr {
+	expr := &ast.IncDecExpr{Token: p.cur, Operator: p.cur.Literal}
+	if !p.expect(token.Ident, "inc-dec stmt") {
+		return nil
+	}
+	expr.Ident = p.parseIdentExpr().(*ast.IdentExpr)
 	return expr
 }
 
@@ -152,14 +156,16 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 
 func (p *Parser) registerPrefixes() map[token.TokenType]prefixParseFn {
 	return map[token.TokenType]prefixParseFn{
-		token.Ident:    p.parseIdentExpr,
-		token.Int:      p.parseIntLiteralExpr,
-		token.DQuote:   p.parseStringExpr,
-		token.Bang:     p.parsePrefixExpr,
-		token.Minus:    p.parsePrefixExpr,
-		token.True:     p.parseBoolExpr,
-		token.False:    p.parseBoolExpr,
-		token.LParen:   p.parseGroupedExpr,
-		token.Function: p.parseFuncExpr,
+		token.Ident:     p.parseIdentExpr,
+		token.Int:       p.parseIntLiteralExpr,
+		token.DQuote:    p.parseStringExpr,
+		token.Bang:      p.parsePrefixExpr,
+		token.Minus:     p.parsePrefixExpr,
+		token.Increment: p.parseIncDecExpr,
+		token.Decrement: p.parseIncDecExpr,
+		token.True:      p.parseBoolExpr,
+		token.False:     p.parseBoolExpr,
+		token.LParen:    p.parseGroupedExpr,
+		token.Function:  p.parseFuncExpr,
 	}
 }

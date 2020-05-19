@@ -234,6 +234,36 @@ func TestPrefixExpr(t *testing.T) {
 	}
 }
 
+func TestIncDecExpr(t *testing.T) {
+	tests := []struct {
+		input string
+		op    token.TokenType
+		ident string
+	}{
+		{"--x;", token.Decrement, "x"},
+		{"++y;", token.Increment, "y"},
+	}
+
+	for _, tt := range tests {
+		program := setup(t, tt.input)
+		if len(program.Stmts) != 1 {
+			t.Fatalf("Expected 1 stmt-expr, got %d", len(program.Stmts))
+		}
+
+		if stmt, ok := program.Stmts[0].(*ast.ExprStmt); !ok {
+			t.Fatalf("Not exprstmt, got %T", program.Stmts[0])
+		} else if expr, ok := stmt.Expr.(*ast.IncDecExpr); !ok {
+			t.Fatalf("not incdec expr, got %T", stmt.Expr)
+		} else {
+			if expr.Token.Type != tt.op {
+				t.Errorf("Expression operator not %s, got %s", tt.op.String(), expr.Token.Type.String())
+			}
+			if expr.Ident.Value != tt.ident {
+				t.Errorf("Expression value not %s, got %s", tt.ident, expr.Ident.Value)
+			}
+		}
+	}
+}
 func TestInfixExpr(t *testing.T) {
 	tests := []struct {
 		input  string

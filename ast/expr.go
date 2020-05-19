@@ -68,6 +68,17 @@ func (pe *PrefixExpr) String() string {
 	return out.String()
 }
 
+type IncDecExpr struct {
+	Token    *token.Token
+	Operator string
+	Ident    *IdentExpr
+}
+
+func (ide *IncDecExpr) exprNode() {}
+func (ide *IncDecExpr) String() string {
+	return ide.Operator + ide.Ident.String()
+}
+
 type InfixExpr struct {
 	Token    *token.Token
 	Operator string
