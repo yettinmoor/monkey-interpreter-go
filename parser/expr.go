@@ -132,7 +132,11 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 		case token.Comma:
 			break
 		default:
-			p.errorf("blabla")
+			p.errorf(
+				"While parsing function arguments: Expected expression or comma, got %q %q",
+				p.cur.Type.String(),
+				p.cur.Literal,
+			)
 			return nil
 		}
 	}
