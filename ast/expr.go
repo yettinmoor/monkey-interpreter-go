@@ -71,7 +71,7 @@ func (pe *PrefixExpr) String() string {
 type IncDecExpr struct {
 	Token    *token.Token
 	Operator string
-	Ident    *IdentExpr
+	Ident    IdentExpr
 }
 
 func (ide *IncDecExpr) exprNode() {}
@@ -99,7 +99,7 @@ func (ie *InfixExpr) String() string {
 
 type FuncExpr struct {
 	Token *token.Token
-	Args  []*IdentExpr
+	Args  []IdentExpr
 	*BlockStmt
 }
 

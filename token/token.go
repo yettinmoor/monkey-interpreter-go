@@ -104,5 +104,6 @@ var Keywords = tokenGroup{
 var special = tokenGroup{
 	"EOF":     EOF,
 	"INT":     Int,
+	"IDENT":   Ident,
 	"ILLEGAL": Illegal,
 }

@@ -12,8 +12,7 @@ type Parser struct {
 	ch             <-chan *token.Token
 	cur, peek      *token.Token
 	Errors         []ParserError
-	prefixParseFns map[token.TokenType]prefixParseFn
-	infixParseFns  map[token.TokenType]bool
+	prefixParseFns map[token.TokenType]func() ast.Expr
 }
 
 type ParserError struct {
@@ -32,7 +31,7 @@ func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 		ch:   ch,
 		peek: <-ch,
 	}
-	p.prefixParseFns = map[token.TokenType]prefixParseFn{
+	p.prefixParseFns = map[token.TokenType]func() ast.Expr{
 		token.Ident:     p.parseIdentExpr,
 		token.Int:       p.parseIntLiteralExpr,
 		token.DQuote:    p.parseStringExpr,
@@ -45,7 +44,6 @@ func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 		token.LParen:    p.parseGroupedExpr,
 		token.Function:  p.parseFuncExpr,
 	}
-	p.next()
 	return p
 }
 
@@ -57,26 +55,35 @@ func (p *Parser) next() {
 
 func (p *Parser) Parse() *ast.Program {
 	prog := &ast.Program{}
-	for p.peek.Type != token.EOF {
+	for p.next(); p.peek.Type != token.EOF; p.next() {
 		if stmt := p.parseStmt(); stmt != nil {
 			prog.Stmts = append(prog.Stmts, stmt)
 		}
-		p.next()
 	}
 	return prog
 }
 
 func (p *Parser) expect(t token.TokenType, caller string) bool {
+	defer p.next()
 	if p.peek.Type == t {
-		p.next()
 		return true
 	}
-	p.errorf("While parsing %s: Expected token `%s`, got `%s`", caller, t.String(), p.peek.Type.String())
-	p.next()
+	p.errorf(
+		"While parsing %s: Expected token `%s`, got `%s`",
+		caller,
+		t.String(),
+		p.peek.Type.String(),
+	)
 	return false
 }
 
 func (p *Parser) errorf(format string, a ...interface{}) {
-	pe := ParserError{row: p.cur.Row, col: p.cur.Col, msg: fmt.Sprintf(format, a...)}
-	p.Errors = append(p.Errors, pe)
+	p.Errors = append(
+		p.Errors,
+		ParserError{
+			row: p.cur.Row,
+			col: p.cur.Col,
+			msg: fmt.Sprintf(format, a...),
+		},
+	)
 }

@@ -33,21 +33,17 @@ var infixPrecedences = map[token.TokenType]int{
 	token.Slash: precProduct,
 }
 
-type prefixParseFn func() ast.Expr
-
-func (p *Parser) parseExpr(precedence int) ast.Expr {
+func (p *Parser) parseExpr(prec int) ast.Expr {
 	prefix, ok := p.prefixParseFns[p.cur.Type]
 	if !ok {
-		if p.cur.Type == token.Semicolon {
-			return nil
+		if p.cur.Type != token.Semicolon {
+			p.errorf("No prefix expression found for %s", p.cur.Type.String())
 		}
-		p.errorf("No prefix expression found for %s", p.cur.Type.String())
 		return nil
 	}
 	left := prefix()
-
-	for p.cur.Type != token.EOF {
-		if peekPrec, isInfix := infixPrecedences[p.peek.Type]; !isInfix || precedence >= peekPrec {
+	for {
+		if peek, _ := infixPrecedences[p.peek.Type]; prec >= peek {
 			break
 		}
 		p.next()
@@ -95,7 +91,7 @@ func (p *Parser) parseIncDecExpr() ast.Expr {
 	if !p.expect(token.Ident, "inc-dec stmt") {
 		return nil
 	}
-	expr.Ident = p.parseIdentExpr().(*ast.IdentExpr)
+	expr.Ident = *p.parseIdentExpr().(*ast.IdentExpr)
 	return expr
 }
 
@@ -123,26 +119,20 @@ func (p *Parser) parseGroupedExpr() ast.Expr {
 func (p *Parser) parseFuncExpr() ast.Expr {
 	funcExpr := &ast.FuncExpr{
 		Token: p.cur,
-		Args:  make([]*ast.IdentExpr, 0),
+		Args:  make([]ast.IdentExpr, 0),
 	}
 	if !p.expect(token.LParen, "function expr") {
 		return nil
 	}
 	for p.next(); p.cur.Type != token.RParen; p.next() {
-		if ident := p.parseIdentExpr(); ident != nil {
-
-		}
-		ident, ok := p.parseIdentExpr().(*ast.IdentExpr)
-		if !ok {
-			p.errorf("Failed to parse func arguments")
-			return nil
-		}
-		funcExpr.Args = append(funcExpr.Args, ident)
-		if p.peek.Type == token.RParen {
-			p.next()
+		switch p.cur.Type {
+		case token.Ident:
+			ident, _ := p.parseIdentExpr().(*ast.IdentExpr)
+			funcExpr.Args = append(funcExpr.Args, *ident)
+		case token.Comma:
 			break
-		}
-		if !p.expect(token.Comma, "function expr") {
+		default:
+			p.errorf("blabla")
 			return nil
 		}
 	}
@@ -150,6 +140,5 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 		return nil
 	}
 	funcExpr.BlockStmt = p.parseBlockStmt()
-	// p.next()
 	return funcExpr
 }
