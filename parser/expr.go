@@ -153,19 +153,3 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 	// p.next()
 	return funcExpr
 }
-
-func (p *Parser) registerPrefixes() map[token.TokenType]prefixParseFn {
-	return map[token.TokenType]prefixParseFn{
-		token.Ident:     p.parseIdentExpr,
-		token.Int:       p.parseIntLiteralExpr,
-		token.DQuote:    p.parseStringExpr,
-		token.Bang:      p.parsePrefixExpr,
-		token.Minus:     p.parsePrefixExpr,
-		token.Increment: p.parseIncDecExpr,
-		token.Decrement: p.parseIncDecExpr,
-		token.True:      p.parseBoolExpr,
-		token.False:     p.parseBoolExpr,
-		token.LParen:    p.parseGroupedExpr,
-		token.Function:  p.parseFuncExpr,
-	}
-}

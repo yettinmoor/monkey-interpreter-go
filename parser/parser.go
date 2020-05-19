@@ -31,20 +31,20 @@ func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 		l:    l,
 		ch:   ch,
 		peek: <-ch,
-		infixParseFns: map[token.TokenType]bool{
-			token.Eq:    true,
-			token.Neq:   true,
-			token.Lt:    true,
-			token.Gt:    true,
-			token.Le:    true,
-			token.Ge:    true,
-			token.Plus:  true,
-			token.Minus: true,
-			token.Star:  true,
-			token.Slash: true,
-		},
 	}
-	p.prefixParseFns = p.registerPrefixes()
+	p.prefixParseFns = map[token.TokenType]prefixParseFn{
+		token.Ident:     p.parseIdentExpr,
+		token.Int:       p.parseIntLiteralExpr,
+		token.DQuote:    p.parseStringExpr,
+		token.Bang:      p.parsePrefixExpr,
+		token.Minus:     p.parsePrefixExpr,
+		token.Increment: p.parseIncDecExpr,
+		token.Decrement: p.parseIncDecExpr,
+		token.True:      p.parseBoolExpr,
+		token.False:     p.parseBoolExpr,
+		token.LParen:    p.parseGroupedExpr,
+		token.Function:  p.parseFuncExpr,
+	}
 	p.next()
 	return p
 }
