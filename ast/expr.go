@@ -136,3 +136,23 @@ func (ie *IfExpr) String() string {
 	}
 	return out.String()
 }
+
+type FuncCallExpr struct {
+	Token *token.Token
+	Func  Expr
+	Args  []Expr
+}
+
+func (fce *FuncCallExpr) exprNode() {}
+func (fce *FuncCallExpr) String() string {
+	var out bytes.Buffer
+	out.WriteString(fce.Func.String())
+	out.WriteString("(")
+	args := make([]string, 0, len(fce.Args))
+	for _, arg := range fce.Args {
+		args = append(args, arg.String())
+	}
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
+	return out.String()
+}

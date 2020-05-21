@@ -395,6 +395,24 @@ func TestIfExpr(t *testing.T) {
 	}
 }
 
+func TestFuncCallExpr(t *testing.T) {
+	input := `add(1, 2, 3+4, 5*6, sub(7, 8))`
+	program := setup(t, input)
+
+	if len(program.Stmts) != 1 {
+		t.Fatalf("Expected 1 stmt, got %d", len(program.Stmts))
+	}
+
+	exprStmt, _ := program.Stmts[0].(*ast.ExprStmt)
+	if funcCallExpr, ok := exprStmt.Expr.(*ast.FuncCallExpr); !ok {
+		t.Fatalf("Expected func call expr, got %T", exprStmt.Expr)
+	} else if funcCallExpr.Func.String() != "add" {
+		t.Errorf("Expected func call identifier %q, got %q", "add", funcCallExpr.Func.String())
+	} else if len(funcCallExpr.Args) != 5 {
+		t.Errorf("Expected %d args to func call, got %d", 5, len(funcCallExpr.Args))
+	}
+}
+
 func testIntLit(t *testing.T, expr ast.Expr, value int64) {
 	if intExpr, ok := expr.(*ast.IntLiteralExpr); !ok {
 		t.Fatalf("Not int expr, got %T", expr)

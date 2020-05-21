@@ -19,18 +19,19 @@ const (
 )
 
 var infixPrecedences = map[token.TokenType]int{
-	token.Eq:    precEquals,
-	token.Neq:   precEquals,
-	token.Lt:    precCmp,
-	token.Gt:    precCmp,
-	token.Le:    precCmp,
-	token.Ge:    precCmp,
-	token.And:   precLogic,
-	token.Or:    precLogic,
-	token.Plus:  precSum,
-	token.Minus: precSum,
-	token.Star:  precProduct,
-	token.Slash: precProduct,
+	token.Eq:     precEquals,
+	token.Neq:    precEquals,
+	token.Lt:     precCmp,
+	token.Gt:     precCmp,
+	token.Le:     precCmp,
+	token.Ge:     precCmp,
+	token.And:    precLogic,
+	token.Or:     precLogic,
+	token.Plus:   precSum,
+	token.Minus:  precSum,
+	token.Star:   precProduct,
+	token.Slash:  precProduct,
+	token.LParen: precCall,
 }
 
 func (p *Parser) parseExpr(prec int) ast.Expr {
@@ -47,7 +48,12 @@ func (p *Parser) parseExpr(prec int) ast.Expr {
 			break
 		}
 		p.next()
-		left = p.parseInfixExpr(left)
+		switch p.cur.Type {
+		case token.LParen:
+			left = p.parseFuncCallExpr(left)
+		default:
+			left = p.parseInfixExpr(left)
+		}
 	}
 	return left
 }
@@ -160,4 +166,24 @@ func (p *Parser) parseIfExpr() ast.Expr {
 		ifExpr.Else = p.parseStmt()
 	}
 	return ifExpr
+}
+
+func (p *Parser) parseFuncCallExpr(f ast.Expr) ast.Expr {
+	callExpr := &ast.FuncCallExpr{
+		Token: p.cur,
+		Func:  f,
+	}
+	if p.accept(token.RParen) {
+		return callExpr
+	}
+	p.next()
+	callExpr.Args = append(callExpr.Args, p.parseExpr(precLowest))
+	for p.accept(token.Comma) {
+		p.next()
+		callExpr.Args = append(callExpr.Args, p.parseExpr(precLowest))
+	}
+	if !p.expect(token.RParen, "func call expr") {
+		return nil
+	}
+	return callExpr
 }
