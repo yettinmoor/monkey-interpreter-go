@@ -374,6 +374,27 @@ func TestBlockStmt(t *testing.T) {
 		}
 	}
 }
+
+func TestIfExpr(t *testing.T) {
+	input := `let y = if (x < 3) true; else { let z = 3; z + 1 };`
+	program := setup(t, input)
+
+	if len(program.Stmts) != 1 {
+		t.Fatalf("Expected 1 stmt, got %d", len(program.Stmts))
+	}
+
+	letStmt, _ := program.Stmts[0].(*ast.LetStmt)
+	if ifExpr, ok := letStmt.Value.(*ast.IfExpr); !ok {
+		t.Fatalf("Expected if expr, got %T", letStmt.Value)
+	} else if ifExpr.Cond.String() != "(x<3)" {
+		t.Errorf("Condition should be %q, got %q", "(x<3)", ifExpr.Cond.String())
+	} else if _, ok := ifExpr.Then.(*ast.ExprStmt); !ok {
+		t.Errorf("Then stmt should be expr-stmt, got %T", ifExpr.Then)
+	} else if _, ok := ifExpr.Else.(*ast.BlockStmt); !ok {
+		t.Errorf("Else stmt should be block stmt, got %T", ifExpr.Else)
+	}
+}
+
 func testIntLit(t *testing.T, expr ast.Expr, value int64) {
 	if intExpr, ok := expr.(*ast.IntLiteralExpr); !ok {
 		t.Fatalf("Not int expr, got %T", expr)

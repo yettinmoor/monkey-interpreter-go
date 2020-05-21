@@ -116,3 +116,23 @@ func (fe *FuncExpr) String() string {
 	out.WriteString(fe.BlockStmt.String())
 	return out.String()
 }
+
+type IfExpr struct {
+	Token *token.Token
+	Cond  Expr
+	Then  Stmt
+	Else  Stmt
+}
+
+func (ie *IfExpr) exprNode() {}
+func (ie *IfExpr) String() string {
+	var out bytes.Buffer
+	out.WriteString("if ")
+	out.WriteString(ie.Cond.String())
+	out.WriteString(" ")
+	out.WriteString(ie.Then.String())
+	if ie.Else != nil {
+		out.WriteString(ie.Else.String())
+	}
+	return out.String()
+}

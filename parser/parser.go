@@ -43,6 +43,7 @@ func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 		token.False:     p.parseBoolExpr,
 		token.LParen:    p.parseGroupedExpr,
 		token.Function:  p.parseFuncExpr,
+		token.If:        p.parseIfExpr,
 	}
 	return p
 }

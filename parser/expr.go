@@ -146,3 +146,19 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 	funcExpr.BlockStmt = p.parseBlockStmt()
 	return funcExpr
 }
+
+func (p *Parser) parseIfExpr() ast.Expr {
+	ifExpr := &ast.IfExpr{Token: p.cur}
+	if !p.expect(token.LParen, "if expr") {
+		return nil
+	}
+	ifExpr.Cond = p.parseGroupedExpr()
+	p.next()
+	ifExpr.Then = p.parseStmt()
+	p.next()
+	if p.cur.Type == token.Else {
+		p.next()
+		ifExpr.Else = p.parseStmt()
+	}
+	return ifExpr
+}
