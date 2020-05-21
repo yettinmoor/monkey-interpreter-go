@@ -57,8 +57,8 @@ func (p *Parser) parseExprStmt() *ast.ExprStmt {
 	stmt := &ast.ExprStmt{Token: p.cur}
 	stmt.Expr = p.parseExpr(precLowest)
 
-	if !p.expect(token.Semicolon, "expr-stmt") {
-		return nil
+	if p.peek.Type == token.Semicolon {
+		p.next()
 	}
 	return stmt
 }
