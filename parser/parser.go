@@ -49,14 +49,12 @@ func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 }
 
 func (p *Parser) next() {
-	if p.peek.Type != token.EOF {
-		p.cur, p.peek = p.peek, <-p.ch
-	}
+	p.cur, p.peek = p.peek, <-p.ch
 }
 
 func (p *Parser) Parse() *ast.Program {
 	prog := &ast.Program{}
-	for p.next(); p.peek.Type != token.EOF; p.next() {
+	for p.next(); p.cur.Type != token.EOF; p.next() {
 		if stmt := p.parseStmt(); stmt != nil {
 			prog.Stmts = append(prog.Stmts, stmt)
 		}

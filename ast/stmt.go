@@ -7,8 +7,8 @@ import (
 )
 
 type Stmt interface {
+	Node
 	stmtNode()
-	String() string
 }
 
 type LetStmt struct {

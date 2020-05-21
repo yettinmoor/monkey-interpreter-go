@@ -4,6 +4,10 @@ import (
 	"bytes"
 )
 
+type Node interface {
+	String() string
+}
+
 type Program struct {
 	Stmts []Stmt
 }

@@ -8,8 +8,8 @@ import (
 )
 
 type Expr interface {
+	Node
 	exprNode()
-	String() string
 }
 
 type IdentExpr struct {
