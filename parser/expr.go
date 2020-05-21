@@ -11,7 +11,8 @@ const (
 	precLowest
 	precEquals
 	precCmp
-	precLogic
+	precOr
+	precAnd
 	precSum
 	precProduct
 	precPrefix
@@ -25,8 +26,8 @@ var infixPrecedences = map[token.TokenType]int{
 	token.Gt:     precCmp,
 	token.Le:     precCmp,
 	token.Ge:     precCmp,
-	token.And:    precLogic,
-	token.Or:     precLogic,
+	token.Or:     precOr,
+	token.And:    precAnd,
 	token.Plus:   precSum,
 	token.Minus:  precSum,
 	token.Star:   precProduct,
