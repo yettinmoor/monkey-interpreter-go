@@ -40,6 +40,7 @@ const (
 	Let
 	Lt
 	Minus
+	Modulo
 	Neq
 	Or
 	Plus
@@ -67,6 +68,7 @@ var allTokens = func() map[TokenType]string {
 var SymToks = tokenGroup{
 	"!":  Bang,
 	"!=": Neq,
+	"%":  Modulo,
 	"&&": And,
 	"'":  SQuote,
 	"(":  LParen,

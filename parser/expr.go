@@ -31,6 +31,7 @@ var infixPrecedences = map[token.TokenType]int{
 	token.Minus:  precSum,
 	token.Star:   precProduct,
 	token.Slash:  precProduct,
+	token.Modulo: precProduct,
 	token.LParen: precCall,
 }
 
