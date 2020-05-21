@@ -155,8 +155,7 @@ func (p *Parser) parseIfExpr() ast.Expr {
 	ifExpr.Cond = p.parseGroupedExpr()
 	p.next()
 	ifExpr.Then = p.parseStmt()
-	p.next()
-	if p.cur.Type == token.Else {
+	if p.accept(token.Else) {
 		p.next()
 		ifExpr.Else = p.parseStmt()
 	}

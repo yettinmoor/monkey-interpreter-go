@@ -64,9 +64,16 @@ func (p *Parser) Parse() *ast.Program {
 	return prog
 }
 
-func (p *Parser) expect(t token.TokenType, caller string) bool {
-	defer p.next()
+func (p *Parser) accept(t token.TokenType) bool {
 	if p.peek.Type == t {
+		p.next()
+		return true
+	}
+	return false
+}
+
+func (p *Parser) expect(t token.TokenType, caller string) bool {
+	if p.accept(t) {
 		return true
 	}
 	p.errorf(

@@ -41,10 +41,11 @@ func (p *Parser) parseLetStmt() *ast.LetStmt {
 func (p *Parser) parseReturnStmt() *ast.ReturnStmt {
 	stmt := &ast.ReturnStmt{Token: p.cur}
 
-	if p.next(); p.cur.Type == token.Semicolon {
+	if p.accept(token.Semicolon) {
 		return stmt
 	}
 
+	p.next()
 	stmt.Value = p.parseExpr(precLowest)
 	if !p.expect(token.Semicolon, "return stmt") {
 		return nil
@@ -56,10 +57,7 @@ func (p *Parser) parseReturnStmt() *ast.ReturnStmt {
 func (p *Parser) parseExprStmt() *ast.ExprStmt {
 	stmt := &ast.ExprStmt{Token: p.cur}
 	stmt.Expr = p.parseExpr(precLowest)
-
-	if p.peek.Type == token.Semicolon {
-		p.next()
-	}
+	p.accept(token.Semicolon)
 	return stmt
 }
 
