@@ -11,8 +11,6 @@ Some of my additions (haven't finished the book, maybe they're covered later):
 ## Todo
 
 ### Parsing
-- Function calls
-- If/else
 - Arrays
 
 ### Interpretation
