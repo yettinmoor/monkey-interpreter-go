@@ -54,7 +54,7 @@ type ExprStmt struct {
 func (es *ExprStmt) stmtNode() {}
 func (es *ExprStmt) String() string {
 	if es.Expr != nil {
-		return es.Expr.String() + ";"
+		return es.Expr.String()
 	}
 	return ""
 }

@@ -132,6 +132,7 @@ func (ie *IfExpr) String() string {
 	out.WriteString(" ")
 	out.WriteString(ie.Then.String())
 	if ie.Else != nil {
+		out.WriteString(" else ")
 		out.WriteString(ie.Else.String())
 	}
 	return out.String()
