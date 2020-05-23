@@ -57,7 +57,6 @@ func (p *Parser) parseReturnStmt() *ast.ReturnStmt {
 func (p *Parser) parseExprStmt() *ast.ExprStmt {
 	stmt := &ast.ExprStmt{Token: p.cur}
 	stmt.Expr = p.parseExpr(precLowest)
-	p.accept(token.Semicolon)
 	return stmt
 }
 

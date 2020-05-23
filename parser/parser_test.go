@@ -165,7 +165,7 @@ func TestIdentExpr(t *testing.T) {
 }
 
 func TestIntLiteralExpr(t *testing.T) {
-	input := `5;`
+	input := `5`
 
 	program := setup(t, input)
 
@@ -209,8 +209,8 @@ func TestPrefixExpr(t *testing.T) {
 		input, op string
 		value     int64
 	}{
-		{"!5;", "!", 5},
-		{"-15;", "-", 15},
+		{"!5", "!", 5},
+		{"-15", "-", 15},
 	}
 
 	for i, tt := range tests {
@@ -240,8 +240,8 @@ func TestIncDecExpr(t *testing.T) {
 		op    token.TokenType
 		ident string
 	}{
-		{"--x;", token.Decrement, "x"},
-		{"++y;", token.Increment, "y"},
+		{"--x", token.Decrement, "x"},
+		{"++y", token.Increment, "y"},
 	}
 
 	for _, tt := range tests {
@@ -271,11 +271,11 @@ func TestInfixExpr(t *testing.T) {
 		op     string
 		rvalue int64
 	}{
-		{"5 + 5;", 5, "+", 5},
-		{"5 * 5;", 5, "*", 5},
-		{"5 / 5;", 5, "/", 5},
-		{"5 == 5;", 5, "==", 5},
-		{"5 <= 5;", 5, "<=", 5},
+		{"5 + 5", 5, "+", 5},
+		{"5 * 5", 5, "*", 5},
+		{"5 / 5", 5, "/", 5},
+		{"5 == 5", 5, "==", 5},
+		{"5 <= 5", 5, "<=", 5},
 	}
 
 	for i, tt := range tests {
@@ -300,7 +300,7 @@ func TestInfixExpr(t *testing.T) {
 
 func TestFuncExpr(t *testing.T) {
 	input := `let void = fn() {  };
-	let square = fn(x) { x*x; };
+	let square = fn(x) { return x*x; };
 	let avg = fn(a, b) { let a = 3; let b = 5; return (a + b) / 2; };`
 
 	program := setup(t, input)
@@ -376,7 +376,7 @@ func TestBlockStmt(t *testing.T) {
 }
 
 func TestIfExpr(t *testing.T) {
-	input := `let y = if (x < 3) true; else { let z = 3; z + 1 };`
+	input := `let y = if (x < 3) true else { let z = 3; z + 1 };`
 	program := setup(t, input)
 
 	if len(program.Stmts) != 1 {
