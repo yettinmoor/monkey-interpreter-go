@@ -127,7 +127,7 @@ func (p *Parser) parseGroupedExpr() ast.Expr {
 func (p *Parser) parseFuncExpr() ast.Expr {
 	funcExpr := &ast.FuncExpr{
 		Token: p.cur,
-		Args:  make([]ast.IdentExpr, 0),
+		Args:  make([]*ast.IdentExpr, 0),
 	}
 	if !p.expect(token.LParen, "function expr") {
 		return nil
@@ -136,7 +136,7 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 		switch p.cur.Type {
 		case token.Ident:
 			ident, _ := p.parseIdentExpr().(*ast.IdentExpr)
-			funcExpr.Args = append(funcExpr.Args, *ident)
+			funcExpr.Args = append(funcExpr.Args, ident)
 		case token.Comma:
 			break
 		default:
@@ -157,10 +157,6 @@ func (p *Parser) parseFuncExpr() ast.Expr {
 
 func (p *Parser) parseIfExpr() ast.Expr {
 	ifExpr := &ast.IfExpr{Token: p.cur}
-	// if !p.expect(token.LParen, "if expr") {
-	// 	return nil
-	// }
-	// ifExpr.Cond = p.parseGroupedExpr()
 	p.next()
 	ifExpr.Cond = p.parseExpr(precLowest)
 	p.next()

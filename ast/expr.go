@@ -99,7 +99,7 @@ func (ie *InfixExpr) String() string {
 
 type FuncExpr struct {
 	Token *token.Token
-	Args  []IdentExpr
+	Args  []*IdentExpr
 	*BlockStmt
 }
 

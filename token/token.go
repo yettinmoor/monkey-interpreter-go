@@ -29,6 +29,7 @@ const (
 	Function
 	Ge
 	Gt
+	Hash
 	Ident
 	If
 	Illegal
@@ -68,6 +69,7 @@ var allTokens = func() map[TokenType]string {
 var SymToks = tokenGroup{
 	"!":  Bang,
 	"!=": Neq,
+	"#":  Hash,
 	"%":  Modulo,
 	"&&": And,
 	"'":  SQuote,

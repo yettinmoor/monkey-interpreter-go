@@ -145,7 +145,7 @@ func evalProgram(n *ast.Program, env object.Env) object.Object {
 			return ret.Value
 		}
 	}
-	return ret
+	return nil
 }
 
 func evalPrefixExpr(op string, right object.Object) object.Object {
@@ -157,6 +157,9 @@ func evalPrefixExpr(op string, right object.Object) object.Object {
 		return &object.ObjInt{Value: -right.(*object.ObjInt).Value}
 	case "!":
 		return getBool(!isTruthy(right))
+	case "#":
+		fmt.Print(right.String())
+		return right
 	default:
 		return errorf("Bad prefix %s", op)
 	}

@@ -25,12 +25,12 @@ func main() {
 	}
 
 	ch := make(chan *token.Token)
-	p := parser.New(lexer.New(string(input), ch), ch)
+	p := parser.New(lexer.New(string(input)[:len(input)-1], ch), ch)
 	prog := p.Parse()
 
 	if len(p.Errors) > 0 {
 		for _, err := range p.Errors {
-			println(err.String)
+			println(err.String())
 		}
 		return
 	}

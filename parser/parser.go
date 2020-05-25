@@ -35,6 +35,7 @@ func New(l *lexer.Lexer, ch <-chan *token.Token) *Parser {
 		token.Ident:     p.parseIdentExpr,
 		token.Int:       p.parseIntLiteralExpr,
 		token.DQuote:    p.parseStringExpr,
+		token.Hash:      p.parsePrefixExpr,
 		token.Bang:      p.parsePrefixExpr,
 		token.Minus:     p.parsePrefixExpr,
 		token.Increment: p.parseIncDecExpr,
