@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"monkey/evaluator"
 	"monkey/lexer"
+	"monkey/object"
 	"monkey/parser"
 	"monkey/token"
 	"os"
@@ -12,6 +13,7 @@ import (
 
 func Repl() {
 	scanner := bufio.NewScanner(os.Stdin)
+	env := object.NewEnv(nil)
 	for {
 		fmt.Print(">> ")
 		scanned := scanner.Scan()
@@ -28,7 +30,7 @@ func Repl() {
 			}
 		} else {
 			// fmt.Printf("%s\n", prog.String())
-			res := evaluator.Eval(prog)
+			res := evaluator.Eval(prog, env)
 			fmt.Println(res)
 		}
 	}

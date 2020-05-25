@@ -23,7 +23,7 @@ func TestEvalIntExpr(t *testing.T) {
 		ch := make(chan *token.Token)
 		l := lexer.New(tt.input, ch)
 		program := parser.New(l, ch).Parse()
-		output := Eval(program)
+		output := Eval(program, object.NewEnv(nil))
 		if output, ok := output.(*object.ObjInt); !ok {
 			t.Errorf("Expected int64 value, got %T", output)
 		} else if output.Value != tt.expected {
