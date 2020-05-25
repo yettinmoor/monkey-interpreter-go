@@ -3,6 +3,7 @@ package repl
 import (
 	"bufio"
 	"fmt"
+	"monkey/evaluator"
 	"monkey/lexer"
 	"monkey/parser"
 	"monkey/token"
@@ -26,8 +27,9 @@ func Repl() {
 				fmt.Println(e.String())
 			}
 		} else {
-			fmt.Printf("%s\n", prog.String())
-			// fmt.Printf("%#v\n", prog)
+			// fmt.Printf("%s\n", prog.String())
+			res := evaluator.Eval(prog)
+			fmt.Println(res)
 		}
 	}
 }
