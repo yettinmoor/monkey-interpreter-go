@@ -31,3 +31,22 @@ func TestEvalIntExpr(t *testing.T) {
 		}
 	}
 }
+
+func TestFuncCall(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"let add = fn(x, y) { return x+y; }; add(3, 4)", "7"},
+		{"fn(x, y){ return x-y; }(2, 1)", "1"},
+	}
+	for _, tt := range tests {
+		ch := make(chan *token.Token)
+		l := lexer.New(tt.input, ch)
+		program := parser.New(l, ch).Parse()
+		output := Eval(program, object.NewEnv(nil)).String()
+		if output != tt.expected {
+			t.Errorf("Expected output %q, got %q", tt.expected, output)
+		}
+	}
+}

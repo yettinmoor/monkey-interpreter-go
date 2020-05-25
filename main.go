@@ -36,5 +36,5 @@ func main() {
 	}
 
 	ret := evaluator.Eval(prog, object.NewEnv(nil))
-	fmt.Println(ret)
+	fmt.Println(ret.String())
 }

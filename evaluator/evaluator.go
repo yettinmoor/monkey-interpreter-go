@@ -6,8 +6,6 @@ import (
 	"monkey/object"
 )
 
-type propagate object.Object
-
 var (
 	nullObj  = &object.ObjNull{}
 	trueObj  = &object.ObjBool{Value: true}
@@ -32,9 +30,22 @@ func Eval(n ast.Node, env object.Env) object.Object {
 		return nullObj
 
 	case *ast.ReturnStmt:
-		return propagate(Eval(n.Value, env))
+		val := Eval(n.Value, env)
+		if isError(val) {
+			return val
+		}
+		return &object.ObjReturn{Value: val}
+
 	case *ast.BlockStmt:
-		return evalBlockStmt(n.Stmts, env)
+		newenv := object.NewEnv(&env)
+		for _, stmt := range n.Stmts {
+			switch ret := Eval(*stmt, newenv).(type) {
+			case *object.ObjReturn, *object.ObjError:
+				return ret
+			}
+		}
+		return nullObj
+
 	case *ast.ExprStmt:
 		return Eval(n.Expr, env)
 
@@ -81,6 +92,31 @@ func Eval(n ast.Node, env object.Env) object.Object {
 		}
 		return else_
 
+	case *ast.FuncExpr:
+		return &object.ObjFunc{
+			Args: n.Args,
+			Body: n.BlockStmt,
+			Env:  &env,
+		}
+
+	case *ast.FuncCallExpr:
+		fn, ok := Eval(n.Func, env).(*object.ObjFunc)
+		if !ok {
+			return errorf("not a function: %s", n.Func)
+		}
+		if len(fn.Args) != len(n.Args) {
+			return errorf("mismatched arg count: %s, %s", fn.Args, n.Args)
+		}
+		newenv := object.NewEnv(&env)
+		for i, arg := range fn.Args {
+			callarg := Eval(n.Args[i], env)
+			if isError(callarg) {
+				return callarg
+			}
+			newenv.Set(arg.Value, callarg)
+		}
+		return Eval(fn.Body, newenv)
+
 	case *ast.IntLiteralExpr:
 		return &object.ObjInt{Value: n.Value}
 
@@ -110,16 +146,6 @@ func evalProgram(n *ast.Program, env object.Env) object.Object {
 		}
 	}
 	return ret
-}
-
-func evalBlockStmt(stmts []*ast.Stmt, env object.Env) object.Object {
-	env = object.NewEnv(&env)
-	for _, stmt := range stmts {
-		if ret, ok := Eval(*stmt, env).(propagate); ok {
-			return ret
-		}
-	}
-	return nullObj
 }
 
 func evalPrefixExpr(op string, right object.Object) object.Object {

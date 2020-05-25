@@ -2,7 +2,7 @@ package object
 
 import (
 	"fmt"
-	"go/ast"
+	"monkey/ast"
 )
 
 type ObjectType uint
@@ -31,8 +31,9 @@ type (
 	ObjBool   struct{ Value bool }
 	ObjString struct{ Value string }
 	ObjFunc   struct {
-		Args  []ast.Ident
-		Stmts []*ast.Stmt
+		Args []*ast.IdentExpr
+		Body *ast.BlockStmt
+		Env  *Env
 	}
 )
 
